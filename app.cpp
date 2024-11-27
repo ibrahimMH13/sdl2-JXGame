@@ -5,6 +5,7 @@ and may not be redistributed without written permission.*/
 #include <SDL.h>
 #include <stdio.h>
 #include <string>
+#include <SDL_image.h>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -81,7 +82,7 @@ bool loadMedia()
 	bool success = true;
 
 	//Load default surface
-	gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurface( "press.bmp" );
+	gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurface( "background_single.png" );
 	if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] == NULL )
 	{
 		printf( "Failed to load default image!\n" );
@@ -143,13 +144,27 @@ void close()
 SDL_Surface* loadSurface( std::string path )
 {
 	//Load image at specified path
-	SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
+	SDL_Surface* optimizeLoadSurface = NULL;
+
+	SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
 	if( loadedSurface == NULL )
 	{
 		printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-	}
+		
+	}else{
+	
+	optimizeLoadSurface = SDL_ConvertSurface( loadedSurface, gScreenSurface->format, 0 );
 
-	return loadedSurface;
+		if (optimizeLoadSurface == NULL)
+		{
+			printf("failed to load optimize images,SDL ERR %s",SDL_GetError());
+		}
+
+	SDL_FreeSurface(loadedSurface);
+	
+
+	}
+	return optimizeLoadSurface;
 }
 
 
