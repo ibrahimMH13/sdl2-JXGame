@@ -1,10 +1,10 @@
 CXX = clang++
-CXXFLAGS = -I/opt/homebrew/include/SDL2 -g -O2
+CXXFLAGS = -I/opt/homebrew/include/SDL2 -g -O2 -std=c++11
 LDFLAGS = -L/opt/homebrew/lib -lSDL2 -lSDL2_ttf -lSDL2_image
 
 # Allow user to specify SRC and OUT dynamically
 SRC ?= app.cpp
-OBJ = $(SRC:.cpp=.o) # Convert SRC files to object files
+OBJ = $(SRC:.cpp=.o) # Convert all source files into object files
 OUT ?= game
 
 # Default target
@@ -31,7 +31,7 @@ run: $(OUT)
 # Help information
 help:
 	@echo "Usage:"
-	@echo "  make               # Build the default target"
-	@echo "  make SRC=foo.cpp OUT=foo # Build a specific source file"
-	@echo "  make clean         # Remove the compiled binary and object files"
-	@echo "  make run           # Build and run the binary"
+	@echo "  make                   # Build the default target"
+	@echo "  make SRC=\"file1.cpp file2.cpp\" OUT=program # Build specific files"
+	@echo "  make clean             # Remove the compiled binary and object files"
+	@echo "  make run               # Build and run the binary"

@@ -3,25 +3,20 @@
 #include <string>
 #include <iostream>
 #include "texture.h"
+#include "LTexture.cpp"
 
 SDL_Window* gWindow = nullptr;
 
-SDL_Texture* gFooTexture;
-
-SDL_Texture* gBackgroundTexture;
-
 SDL_Renderer* gRenderer;
 
-int HIEGHT_WINDOW = 700;
+const int HIEGHT_WINDOW = 640;
 
-int WIDETH_WINDOW = 500;
+const int WIDETH_WINDOW = 480;
 
 bool quit = false;
 
 
-class LTexture;
-
-bool init(int argc,char* argv[]){
+bool init(){
 
     if(SDL_Init(SDL_INIT_VIDEO)< 0){
         std::cerr << "unable to init sdl" << SDL_GetError();
@@ -32,7 +27,9 @@ bool init(int argc,char* argv[]){
    
     if (gWindow == nullptr)
     {
-       std::cerr << "unable to create window" << SDL_GetError();
+
+      std::cerr << "Unable to init SDL: " << SDL_GetError() << std::endl;
+
        return false;
     }
     
@@ -40,19 +37,34 @@ bool init(int argc,char* argv[]){
 
     if (gRenderer == nullptr)
     {
-        std::cerr << "unable to create render" << SDL_GetError();
+
+       std::cerr << "Unable to init SDL: " << SDL_GetError() << std::endl;
+
        return false;
     }
     
     return true;
 }
 
-int main(){
+void close(){
+
+    SDL_DestroyRenderer(gRenderer);
+    SDL_DestroyWindow(gWindow);
+    
+    gRenderer = nullptr;
+    gWindow = nullptr;
+
+    IMG_Quit();
+    SDL_Quit();
+
+}
+
+int main(int argc,char* argv[]){
 
     SDL_Event e;
     if (!init())
     {
-        std::cerr << "something went wrong";
+       std::cerr << "Unable to init SDL: " << SDL_GetError() << std::endl;
         return -1;
     }
     
@@ -72,16 +84,20 @@ int main(){
            
         }
 
-        LTexture LTexture(gRenderer);
+        LTexture texture( gRenderer );
+        
+        texture.loadFromFile("background.png");
+        texture.render(0,0);
+        texture.free();
 
-        LTexture.loadFromFile("press.bmp");
-
-        gBackgroundTexture = LTexture.getTexture();
-    
+        texture.loadFromFile("foo.png");
+        texture.render(240, 190);
+        texture.free();
+        
        SDL_RenderPresent(gRenderer);
         
     }
     
-
+    close();
     return 0;
 }

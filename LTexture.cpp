@@ -18,13 +18,13 @@ public:
 
    explicit LTexture(SDL_Renderer* reneder): gRenderer(reneder), gTexture(nullptr), mWidth(0), mHeight(0){}
 
-    ~LTexture(){
+    ~LTexture() override {
 
         free();
 
     }
 
-    bool loadFromFile(const std::string& path) const override {
+    bool loadFromFile(const std::string& path)  override {
         
         free();
         
@@ -49,7 +49,7 @@ public:
         return true;
     }
 
-    SDL_Texture* getTexture()const override {
+    SDL_Texture* getTexture() const override {
 
         return gTexture;
 
@@ -74,7 +74,7 @@ public:
         SDL_RenderCopy(gRenderer,gTexture,NULL, &queued);
     }
 
-    void free() const {
+    void free() override {
 
         if (gTexture)
         {

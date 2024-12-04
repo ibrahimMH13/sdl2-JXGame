@@ -23,8 +23,6 @@ public:
 
     // Get the underlying SDL texture (optional)
     virtual SDL_Texture* getTexture() const = 0;
-
-private:
     // Deallocate texture
     virtual void free() = 0;
 };
