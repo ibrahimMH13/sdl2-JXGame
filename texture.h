@@ -16,7 +16,7 @@ public:
 
     // Render texture at the given point
     virtual void render(int x, int y) = 0;
-
+    virtual void render(int x, int y, SDL_Rect* clip= nullptr) = 0;
     // Get image dimensions
     virtual int getWidth() const = 0;
     virtual int getHeight() const = 0;

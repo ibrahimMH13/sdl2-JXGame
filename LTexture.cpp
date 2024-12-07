@@ -74,6 +74,19 @@ public:
         SDL_RenderCopy(gRenderer,gTexture,NULL, &queued);
     }
 
+    void render(int x, int y, SDL_Rect* clip) override {
+
+         SDL_Rect renderQueued = {x, y, mWidth, mHeight};
+
+        if (clip)
+        {
+            renderQueued.h = clip->h;
+            renderQueued.w = clip->w;
+
+        }
+        SDL_RenderCopy(gRenderer, gTexture, clip, &renderQueued);
+    }
+
     void free() override {
 
         if (gTexture)
