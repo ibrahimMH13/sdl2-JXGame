@@ -20,7 +20,8 @@ public:
     // Get image dimensions
     virtual int getWidth() const = 0;
     virtual int getHeight() const = 0;
-
+    // set color
+    virtual void setColor(Uint8 red,Uint8 green, Uint8 blue) = 0;
     // Get the underlying SDL texture (optional)
     virtual SDL_Texture* getTexture() const = 0;
     // Deallocate texture

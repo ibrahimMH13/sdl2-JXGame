@@ -87,6 +87,11 @@ public:
         SDL_RenderCopy(gRenderer, gTexture, clip, &renderQueued);
     }
 
+    void setColor(Uint8 red, Uint8 green, Uint8 blue) override {
+
+        SDL_SetTextureColorMod(gTexture, red, green, blue);
+    }
+
     void free() override {
 
         if (gTexture)
