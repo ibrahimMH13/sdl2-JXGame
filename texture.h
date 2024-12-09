@@ -26,6 +26,10 @@ public:
     virtual SDL_Texture* getTexture() const = 0;
     // Deallocate texture
     virtual void free() = 0;
+    // 
+    virtual void setBlendMode(SDL_BlendMode blending) = 0 ;
+    virtual void setAlpa(Uint8 alpha) = 0;
+
 };
 
 #endif // TEXTURE_H

@@ -32,7 +32,7 @@ public:
 
         if(imageSurface == nullptr){
 
-            throw std::runtime_error("Unable to load image at " + path + " :: SDL Error: " + std::string(SDL_GetError()));
+            return false;
 
         }
         
@@ -90,6 +90,16 @@ public:
     void setColor(Uint8 red, Uint8 green, Uint8 blue) override {
 
         SDL_SetTextureColorMod(gTexture, red, green, blue);
+    }
+
+    void setBlendMode(SDL_BlendMode blending) override {
+
+        SDL_SetTextureBlendMode(gTexture, blending);
+    }
+
+    void setAlpa(Uint8 alpha) override {
+
+        SDL_SetTextureAlphaMod(gTexture, alpha);
     }
 
     void free() override {
