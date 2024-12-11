@@ -87,6 +87,21 @@ public:
         SDL_RenderCopy(gRenderer, gTexture, clip, &renderQueued);
     }
 
+    void render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip){
+
+      SDL_Rect  queueRender = {x, y, mWidth, mHeight};
+
+        if (!clip)
+        {
+           queueRender.w = clip->w;
+
+           queueRender.h = clip->h;
+        }
+        
+        SDL_RenderCopyEx(gRenderer,gTexture,clip,&queueRender,angle,center,flip);
+    }
+
+
     void setColor(Uint8 red, Uint8 green, Uint8 blue) override {
 
         SDL_SetTextureColorMod(gTexture, red, green, blue);
