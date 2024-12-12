@@ -16,6 +16,7 @@ private:
 
 public:
 
+    LTexture(){};
    explicit LTexture(SDL_Renderer* reneder): gRenderer(reneder), gTexture(nullptr), mWidth(0), mHeight(0){}
 
     ~LTexture() override {
@@ -87,11 +88,11 @@ public:
         SDL_RenderCopy(gRenderer, gTexture, clip, &renderQueued);
     }
 
-    void render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip){
+    void render(int x, int y, SDL_Rect* clip =NULL, double angle =0.0, SDL_Point* center = NULL, SDL_RendererFlip flip=SDL_FLIP_NONE) override {
 
       SDL_Rect  queueRender = {x, y, mWidth, mHeight};
 
-        if (!clip)
+        if (clip != NULL)
         {
            queueRender.w = clip->w;
 
