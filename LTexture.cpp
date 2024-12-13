@@ -1,5 +1,6 @@
 #include "texture.h"
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <stdexcept>
 
 class LTexture : public ITexture
@@ -9,6 +10,8 @@ private:
    SDL_Renderer* gRenderer;
 
    SDL_Texture* gTexture;
+
+   TTF_Font* gFont;
 
    int mWidth;
 
@@ -48,6 +51,42 @@ public:
          SDL_FreeSurface(imageSurface);
 
         return true;
+    }
+
+    ITexture* setFontType(std::string font, double size = 16.0) override {
+        
+        gFont = TTF_OpenFont(font, size);
+
+        return *this;
+    }
+
+    bool loadFromText(std::string text, SDL_Color color){
+
+        if (!gFont)
+        {
+           std::runtime_error("font is not initized" + std::string(SDL_GetError()));
+        }
+        
+        SDL_Surface* textSurface = TTF_RenderText_Solid(gFont,text,color);
+
+        if (!textSurface)
+        {
+           std::runtime_error("Unable create text" + std::string(SDL_GetError()));
+        }
+
+        gTexture = SDL_CreateTextureFromSurface(gRenderer,textSurface);
+
+        if (!gTexture)
+        {
+           std::runtime_error("Unable create text" + std::string(SDL_GetError()));
+        }
+        
+        mWidth = textSurface->w;
+
+        mHeight = textSurface->h;
+
+        SDL_FreeSurface( textSurface );
+
     }
 
     SDL_Texture* getTexture() const override {
