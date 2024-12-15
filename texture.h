@@ -14,11 +14,11 @@ public:
     // Load image at the specified path
     virtual bool loadFromFile(const std::string& path) = 0;
     virtual bool loadFromText(std::string texture, SDL_Color color) = 0;
-    virtual bool setFontType(std::string font) = 0;
+    virtual ITexture* setFontType(std::string font, double size) = 0;
     // Render texture at the given point
     virtual void render(int x, int y) = 0;
     virtual void render(int x, int y, SDL_Rect* clip= nullptr) = 0;
-    virtual void render(int x, int y, SDL_Rect* clip,double angle,SDL_Point* center,SDL_RendererFlip filp) = 0;
+    virtual void render(int x, int y, double angle, SDL_Rect* clip ,SDL_Point* center,SDL_RendererFlip filp) = 0;
     // Get image dimensions
     virtual int getWidth() const = 0;
     virtual int getHeight() const = 0;

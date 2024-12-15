@@ -54,31 +54,31 @@ public:
     }
 
     ITexture* setFontType(std::string font, double size = 16.0) override {
+       
+         gFont = TTF_OpenFont(font.c_str(), size);
         
-        gFont = TTF_OpenFont(font, size);
-
-        return *this;
+        return this;
     }
 
-    bool loadFromText(std::string text, SDL_Color color){
+    bool loadFromText(std::string text, SDL_Color color) override {
 
         if (!gFont)
         {
-           std::runtime_error("font is not initized" + std::string(SDL_GetError()));
+         throw  std::runtime_error("font is not initized" + std::string(SDL_GetError()));
         }
         
-        SDL_Surface* textSurface = TTF_RenderText_Solid(gFont,text,color);
+        SDL_Surface* textSurface = TTF_RenderText_Solid(gFont,text.c_str(),color);
 
         if (!textSurface)
         {
-           std::runtime_error("Unable create text" + std::string(SDL_GetError()));
+         throw  std::runtime_error("Unable create text" + std::string(SDL_GetError()));
         }
 
         gTexture = SDL_CreateTextureFromSurface(gRenderer,textSurface);
 
         if (!gTexture)
         {
-           std::runtime_error("Unable create text" + std::string(SDL_GetError()));
+          throw std::runtime_error("Unable create text" + std::string(SDL_GetError()));
         }
         
         mWidth = textSurface->w;
@@ -87,6 +87,7 @@ public:
 
         SDL_FreeSurface( textSurface );
 
+        return true;
     }
 
     SDL_Texture* getTexture() const override {
@@ -127,7 +128,7 @@ public:
         SDL_RenderCopy(gRenderer, gTexture, clip, &renderQueued);
     }
 
-    void render(int x, int y, SDL_Rect* clip =NULL, double angle =0.0, SDL_Point* center = NULL, SDL_RendererFlip flip=SDL_FLIP_NONE) override {
+    void render(int x, int y, double angle, SDL_Rect* clip = NULL, SDL_Point* center = NULL, SDL_RendererFlip flip=SDL_FLIP_NONE) override {
 
       SDL_Rect  queueRender = {x, y, mWidth, mHeight};
 
@@ -171,6 +172,7 @@ public:
         mWidth = 0;
 
         }
+
         
     }
 
