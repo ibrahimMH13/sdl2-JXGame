@@ -10,9 +10,9 @@ SDL_Window* gWindow;
 
 SDL_Renderer* gReneder;
 
-const int HEIEGHT_WINDOW = 700;
+const int HEIEGHT_WINDOW = 640;
 
-const int WEIGHT_WINDOW = 700;
+const int WEIGHT_WINDOW = 480;
 
 const int TOTAL_BUTTONS = 4;
 
@@ -70,6 +70,8 @@ void init(){
 
     gReneder = SDL_CreateRenderer(gWindow,-1, SDL_RENDERER_ACCELERATED);
 
+     gButtonSpriteSheetTexture = LTexture( gReneder );
+
 }
 
 void close(){
@@ -87,7 +89,7 @@ void close(){
 bool loadMedia(){
      
     if (!gButtonSpriteSheetTexture.loadFromFile("button.png")) {
-        std::cout << "\n@@@----------------------@@@\n";
+        std::cout << "\n@@@----------------------@\n";
         throw std::runtime_error("Failed to load button sprite texture! SDL Error: " + std::string(SDL_GetError()));
         return false;
     }
@@ -184,7 +186,7 @@ void LButton::handleEvent(SDL_Event* e){
 
 void LButton::render(){
 
-   gButtonSpriteSheetTexture.render(mPosition.x, mPosition.y, &gSpriteClips[gCurrentSprite]);
+    gButtonSpriteSheetTexture.render(mPosition.x, mPosition.y, &gSpriteClips[gCurrentSprite]);
 
 }
 
