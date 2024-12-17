@@ -4,15 +4,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include <string>
 
-// Vertex Shader source code
+// Shaders (simplified)
 const char* vertexShaderSource = R"(
 #version 330 core
-layout (location = 0) in vec3 aPos;       // Position
-layout (location = 1) in vec3 aColor;     // Color
-
-out vec3 vertexColor;                     // Pass to fragment shader
+layout (location = 0) in vec3 aPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -20,66 +16,50 @@ uniform mat4 projection;
 
 void main() {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
-    vertexColor = aColor;
 }
 )";
 
-// Fragment Shader source code
 const char* fragmentShaderSource = R"(
 #version 330 core
-in vec3 vertexColor;       // Input color from vertex shader
-out vec4 FragColor;        // Output color
+out vec4 FragColor;
 
 void main() {
-    FragColor = vec4(vertexColor, 1.0);
+    FragColor = vec4(0.5, 0.8, 0.2, 1.0); // Green color
 }
 )";
 
-// Callback to adjust viewport size when the window is resized
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
+// Camera settings
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float cameraSpeed = 0.05f; // Adjust movement speed
 
-// Process user input (ESC to close)
+// Handle user input
 void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
-// Function to compile shaders
-unsigned int compileShader(GLenum type, const char* source) {
-    unsigned int shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
-
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-        std::cerr << "Error: Shader compilation failed\n" << infoLog << std::endl;
-    }
-    return shader;
-}
-
-// Function to create shader program
+// Compile and link shaders
 unsigned int createShaderProgram(const char* vertexSource, const char* fragmentSource) {
-    unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
-    unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
+    glCompileShader(vertexShader);
+
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
+    glCompileShader(fragmentShader);
 
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-
-    int success;
-    char infoLog[512];
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cerr << "Error: Program linking failed\n" << infoLog << std::endl;
-    }
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -94,51 +74,37 @@ int main() {
         return -1;
     }
 
-    // Set GLFW window options
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Create a window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Rotating Cube", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Camera", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glewInit();
 
-    // Initialize GLEW
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW\n";
-        glfwTerminate();
-        return -1;
-    }
-
-    // Set viewport and callback
-    glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    // Enable depth testing
+    // Configure OpenGL state
     glEnable(GL_DEPTH_TEST);
 
-    // Compile shaders and create shader program
+    // Compile shaders
     unsigned int shaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
-    // Cube vertices (position and color)
+    // Cube vertices
     float vertices[] = {
-        // Positions          // Colors
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, // Back face
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // Front face
-         0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0.0f
+        // Positions
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f
     };
-
     unsigned int indices[] = {
         0, 1, 2, 2, 3, 0, // Back face
         4, 5, 6, 6, 7, 4, // Front face
@@ -148,7 +114,8 @@ int main() {
         1, 2, 6, 6, 5, 1  // Right face
     };
 
-    unsigned int VBO, VAO, EBO;
+    // Set up VAO, VBO, and EBO
+    unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -161,20 +128,15 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Transformation matrices
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    // Projection matrix
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    // Main loop
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
@@ -182,20 +144,27 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Activate shader program
+        // Activate shader
         glUseProgram(shaderProgram);
 
-        // Update transformation matrices
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        // Camera/view transformation
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-        // Draw the cube
+        // Pass matrices to shader
+        unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        glm::mat4 model = glm::mat4(1.0f); // No rotation or scaling for now
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        // Draw cube
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-        // Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
