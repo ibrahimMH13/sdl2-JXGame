@@ -101,7 +101,6 @@ bool loadMedia(){
 
     if (!gTexture.loadFromFile("assets/image/prompt.png"))
     {
-        std::cout << "Ibrahim II Musabeh \n";
        throw std::runtime_error(std::string(SDL_GetError()));
         return false;
     }
