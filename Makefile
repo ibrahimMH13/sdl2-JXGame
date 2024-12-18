@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -I/opt/homebrew/include/SDL2 -g -O2 -std=c++11
-LDFLAGS = -L/opt/homebrew/lib -lSDL2 -lSDL2_ttf -lSDL2_image
+LDFLAGS = -L/opt/homebrew/lib -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 
 # Allow user to specify SRC and OUT dynamically
 SRC ?= app.cpp
