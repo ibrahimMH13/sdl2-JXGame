@@ -56,6 +56,12 @@ public:
     ITexture* setFontType(std::string font, double size = 16.0) override {
        
          gFont = TTF_OpenFont(font.c_str(), size);
+
+         if (!gFont)
+         {
+           throw std::runtime_error("font is not found");
+         }
+         
         
         return this;
     }
@@ -64,7 +70,7 @@ public:
 
         if (!gFont)
         {
-         throw  std::runtime_error("font is not initized" + std::string(SDL_GetError()));
+         throw  std::runtime_error("font is not initized " + std::string(SDL_GetError()));
         }
         
         SDL_Surface* textSurface = TTF_RenderText_Solid(gFont,text.c_str(),color);
